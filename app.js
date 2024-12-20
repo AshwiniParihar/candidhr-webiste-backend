@@ -23,6 +23,7 @@ app.use(express.json());
 app.use("/api/admins", adminRoutes);
 app.use("/api/blog", blogRoutes);
 
+
 app.use((err, req, res, next) => {
   res.status(500).json({ message: err.message });
 });

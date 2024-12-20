@@ -2,11 +2,15 @@ const Blog = require("../models/blog");
 
 exports.createBlog = async (req, res) => {
   try {
-    const { content } = req.body; 
+    const { content, bannerImage, title, tag } = req.body; 
+
     const contentArray = Array.isArray(content) ? content : [];
 
     const newBlog = new Blog({
-      content: contentArray, 
+      content: JSON.stringify(contentArray),
+      bannerImage: bannerImage || "",  
+      title: title || "",              
+      tag: tag || "",                 
     });
 
     const savedBlog = await newBlog.save();
@@ -25,9 +29,12 @@ exports.createBlog = async (req, res) => {
 exports.updateBlog = async (req, res) => {
   try {
     const { blogId } = req.params;
-    let { content } = req.body;  
+    let { content, bannerImage, title, tag } = req.body;  
     console.log("Received blogId:", blogId);
     console.log("Received content:", content);
+    console.log("Received bannerImage:", bannerImage);
+    console.log("Received title:", title);
+    console.log("Received tag:", tag);
 
     if (typeof content === 'string') {
       content = JSON.parse(content);
@@ -37,7 +44,12 @@ exports.updateBlog = async (req, res) => {
 
     const updatedBlog = await Blog.findByIdAndUpdate(
       blogId,
-      { content: JSON.stringify(contentArray) },  
+      {
+        content: JSON.stringify(contentArray),
+        bannerImage: bannerImage || "",  
+        title: title || "",              
+        tag: tag || "",                
+      },
       { new: true }  
     );
 
@@ -54,6 +66,7 @@ exports.updateBlog = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
 
 exports.deleteBlog = async (req, res) => {
   try {
