@@ -1,39 +1,84 @@
 const Blog = require("../models/blog");
 
-// Create a new blog
 exports.createBlog = async (req, res) => {
   try {
-    console.log("string")
-    const { content } = req.body; // Extract content from the request body
+    const { content } = req.body; 
+    const contentArray = Array.isArray(content) ? content : [];
 
-    // Create a new blog instance
     const newBlog = new Blog({
-      content,
+      content: contentArray, 
     });
 
-    // Save the blog to the database
     const savedBlog = await newBlog.save();
 
-    // Access the `_id`
     const blogId = savedBlog._id;
-
-    // Return the saved blog as a response
     res.status(201).json({
       message: "Blog created successfully",
-      blog: savedBlog, // Includes the full document
-      blogId, // Explicitly return `_id`
+      blog: savedBlog, 
+      blogId, 
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
 };
 
+exports.updateBlog = async (req, res) => {
+  try {
+    const { blogId } = req.params;
+    let { content } = req.body;  
+    console.log("Received blogId:", blogId);
+    console.log("Received content:", content);
 
-// Get all blogs
+    if (typeof content === 'string') {
+      content = JSON.parse(content);
+    }
+
+    const contentArray = Array.isArray(content) ? content : [];
+
+    const updatedBlog = await Blog.findByIdAndUpdate(
+      blogId,
+      { content: JSON.stringify(contentArray) },  
+      { new: true }  
+    );
+
+    if (!updatedBlog) {
+      return res.status(404).json({ message: "Blog not found" });
+    }
+
+    res.status(200).json({
+      message: "Blog updated successfully",
+      blog: updatedBlog, 
+    });
+  } catch (error) {
+    console.error("Error during blog update:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.deleteBlog = async (req, res) => {
+  try {
+    const { blogId } = req.params;
+    const deletedBlog = await Blog.findByIdAndDelete(blogId);
+
+    if (!deletedBlog) {
+      return res.status(404).json({ message: "Blog not found" });
+    }
+
+    res.status(200).json({
+      message: "Blog deleted successfully",
+      blogId: deletedBlog._id, 
+    });
+  } catch (error) {
+    console.error("Error deleting blog:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
 exports.getAllBlogs = async (req, res) => {
   try {
-    const blogs = await Blog.find(); // Fetch all blogs from the database
-    res.status(200).json(blogs); // Send the list of blogs as the response
+    const blogs = await Blog.find(); 
+    res.status(200).json(blogs); 
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

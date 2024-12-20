@@ -3,11 +3,11 @@ const mongoose = require("mongoose");
 const blogSchema = new mongoose.Schema({
   content: {
     type: String,
-    required: false, // Content is optional
+    default: "", 
   },
   createdAt: {
     type: Date,
-    default: Date.now, // Automatically set the creation time
+    default: Date.now, 
   },
 });
 
