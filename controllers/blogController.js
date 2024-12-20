@@ -1,16 +1,16 @@
 const Blog = require("../models/blog");
-
-exports.createBlog = async (req, res) => {
+const {v4 :uuidv4} = require('uuid')
+ exports.createBlog = async (req, res) => {
   try {
-    const { content, bannerImage, title, tag } = req.body; 
+    // const { content, bannerImage, title, tag } = req.body; 
 
-    const contentArray = Array.isArray(content) ? content : [];
+    const contentArray = [{ id : uuidv4()  , type: 'editor' , data: ""}];
 
     const newBlog = new Blog({
       content: JSON.stringify(contentArray),
-      bannerImage: bannerImage || "",  
-      title: title || "",              
-      tag: tag || "",                 
+      bannerImage: "",  
+      title:  "",              
+      tag:  "",                 
     });
 
     const savedBlog = await newBlog.save();
@@ -92,6 +92,18 @@ exports.getAllBlogs = async (req, res) => {
   try {
     const blogs = await Blog.find(); 
     res.status(200).json(blogs); 
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.getBlogById = async (req, res) => {
+  try {
+    console.log("end Point hit", req.params)
+    const {id} = req.params;
+    const blog = await Blog.findById(id); 
+    res.status(200).json(blog); 
+   
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
